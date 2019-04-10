@@ -5,6 +5,9 @@ from vpython import *
 lane = box(pos=vec(11.5,0,-(.167/2+.10915)), size=vec(23,1,.167), color=color.orange)
 #initialize ball
 bowlingBall = sphere(pos=vec(0,0,0), radius=.10915, mass=7.27, color=color.purple) #mass and radius copied from tjhsst study
+#initialize gutters 
+gutter1 = box(pos=vec(11.5,.5,-(.167/2+.10915)), size=vec(23,0.23495,0.167), color= color.white) #width found on wiki
+gutter2 = box(pos=vec(11.5,-.5,-(.167/2+.10915)), size=vec(23,0.23495,.167), color= color.white)
 #set "pin" locations
 pin1 = sphere(pos=vec(20,0, 0), radius=.0605) #radius from wikipedia; center of first pin is 60ft from where ball is released
 rowDist = .30 * sqrt(3)/2
