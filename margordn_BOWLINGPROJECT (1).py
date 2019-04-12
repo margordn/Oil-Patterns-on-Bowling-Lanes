@@ -115,14 +115,17 @@ def getOilAndCOF():
     
 t = 0
 dt = .01
-bowlingBall.vel = vec(3,2,0)
-while (t < 10):
+bowlingBall.vel = vec(17,.3,0)
+while ((t < 10) and (bowlingBall.pos.x < 23)):
     rate(100)
     bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
     if (check_gutter()):
         t = 10 #while loop will exit
     check_pins()
+    oilu = getOilAndCOF()
     
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(bowlingBall.vel) #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
+    bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt
     
     t = t + dt
     
