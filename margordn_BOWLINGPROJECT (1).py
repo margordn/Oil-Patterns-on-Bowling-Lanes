@@ -54,7 +54,65 @@ def check_gutter():
         fallsIntoGutter = True
     return fallsIntoGutter
     
-
+#Tower of Pisa pattern
+def getOilAndCOF():
+    #segmented into 37 unit widths
+    widSeg = lane.size.y / 37
+    #dark blue of pattern
+    if ((bowlingBall.pos.x  < (25/3)) and (bowlingBall.pos.y  > - ((37/2-9) * widSeg)) and (bowlingBall.pos.y  < ((37/2-130) * widSeg))):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+    else if ((bowlingBall.pos.x  < (22.5/3)) and (bowlingBall.pos.y  > - ((37/2-8) * widSeg)) and (bowlingBall.pos.y  < ((37/2-11) * widSeg))):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+    else if ((bowlingBall.pos.x  < (20/3)) and (bowlingBall.pos.y  > - ((37/2-7) * widSeg)) and (bowlingBall.pos.y  < ((37/2-9) * widSeg))):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+    else if ((bowlingBall.pos.x  < (15/3)) and (bowlingBall.pos.y  > - ((37/2-6) * widSeg)) and (bowlingBall.pos.y  < ((37/2-7) * widSeg))):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+    else if ((bowlingBall.pos.x  < (10/3)) and (bowlingBall.pos.y  > - ((37/2-5) * widSeg)) and (bowlingBall.pos.y  <  ((37/2-5) * widSeg))):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+    else if (bowlingBall.pos.x  < (8/3)):
+        lane.color = color.red
+        u = .06 #lowest COF is when there is most oil
+   
+   #mid blue of pattern
+    else if (bowlingBall.pos.x < (10/3)):
+        lane.color = color.orange
+        u = .08 #mid COF
+    else if ((bowlingBall.pos.x  < (12.5/3)) and (bowlingBall.pos.y  > - ((37/2-5) * widSeg)) and (bowlingBall.pos.y  < ((37/2-5) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF
+    else if ((bowlingBall.pos.x  < (17.5/3)) and (bowlingBall.pos.y  > - ((37/2-6) * widSeg)) and (bowlingBall.pos.y  < ((37/2-6) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF
+    else if ((bowlingBall.pos.x  < (20/3)) and (bowlingBall.pos.y > - ((37/2-7) * widSeg)) and (bowlingBall.pos.y  < ((37/2-7) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF 
+    else if ((bowlingBall.pos.x  < (22.5/3)) and (bowlingBall.pos.y > - ((37/2-8) * widSeg)) and (bowlingBall.pos.y  < ((37/2-8) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF
+    else if ((bowlingBall.pos.x  < (29/3)) and (bowlingBall.pos.y  > - ((37/2-9) * widSeg)) and (bowlingBall.pos.y  < ((37/2-12) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF
+    else if ((bowlingBall.pos.x  < (32/3)) and (bowlingBall.pos.y > - ((37/2-10) * widSeg)) and (bowlingBall.pos.y  < ((37/2-14) * widSeg))):
+        lane.color = color.orange
+        u = .08 #mid COF
+        
+    #light blue of pattern
+    else:
+        lane.color = color.yellow
+        u = .10 #higher COF for minimal oil
+    
+    #after 40 ft there is NO oil
+    if (bowlingBall.pos.x > (40/3)):
+        lane.color = color.magenta
+        u = .12 #highest COF is when there is no oil
+        
+    return u
+    
 t = 0
 dt = .01
 bowlingBall.vel = vec(3,2,0)
