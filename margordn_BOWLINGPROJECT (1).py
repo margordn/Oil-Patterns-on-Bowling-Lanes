@@ -121,7 +121,12 @@ bowlingBall.vel = vec(17,.3,0)
 vCP = bowlingBall.vel
 bowlingBall.w = vec(50**.5, 50**.5, 0)
 bowlingBall.I = .033
-vCrossR = 0 #this should get immediately overriden
+angle = 0   #angle between vCP and vel
+b_angle = 0 #axis tilt angle
+c_angle = 0 #axis rotation angle
+l = bowlingBall.I * bowlingBall.w
+_radius = vec(0,0,-bowlingBall.radius)
+temp = 0
 
 while ((t < 10) and (bowlingBall.pos.x < 23)):
     rate(100)
@@ -131,30 +136,39 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     oilu = getOilAndCOF()
     if (check_gutter()):
         t = 10 #exits while loop
+
+    
+    torque = cross(_radius, bowlingBall.mass * 9.81 * oilu * bowlingBall.w.norm())
+    l = l + torque * dt
+    bowlingBall.w = l /  bowlingBall.I
+    b_angle = (bowlingBall.w.y) * dt
+    c_angle = (bowlingBall.w.z) * dt
+    
+    temp = mag(bowlingBall.w * bowlingBall.radius)
+    
+    angle = mag(bowlingBall.vel)**2 + 2*temp*mag(bowlingBall.vel)*cos(b_angle)*sin(c_angle) + (temp*cos(b_angle))**2 
+    angle = angle**-1
+    angle = angle * (temp * cos(b_angle) * cos(c_angle))
     
     
     
-    #angle between vCP and vel
-    vCrossR = cross(bowlingBall.radius, bowlingBall.vel)
     
-    
-    
-    
-    angle = (bowlingBall.w * bowlingBall.r * cos(b_angle) * cos(c_angle)) / (bowlingBall.vel**2 + (2*bowlingBall.w*bowlingBall.r*bowlingBall.vel*cos(b_angle)*sin(c_angle)) + (bowlingBall.w  
-    vCP = vCP * (cos(angle)*bowlingBall.vel.tangent() - sin(angle)*bowlingBall.vel.norm())
-    
-    #rolling (happens last)
-    if (vCp <= 0):
-        print("rolling")
         
     #slipping (happens first)
-    else if (abs(vCP - bowlingBall.vel) < 0.001):
+    if (abs(mag(bowlingBall.vel) - mag(vCP)) < 0.001):
         print("slipping")
+        
+    #rolling (happens last)
+    else if (vCP.x <= 0):
+        print("rolling")
     
     #rolling and slipping (happens in between slipping and rolling and is the HOOK)
     else:
         print("hooking")
-        
+        tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
+        print("tanVel:" + tanVel)
+        print("mag of vCP:" + mag(vCP))
+        vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))
 
     FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(bowlingBall.vel) #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
     bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt
@@ -164,24 +178,6 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     t = t + dt
     
 print("done")
-
-
-
-torque = cross(R, bowlingBall.mass * 9.81 * oilu * bowlingBall.w.norm())
-print(torque)
-print(bowlingBall.w)
-l += torque * dt
-bowlingBall.w = l / I
-dTheta = mag(bowlingBall.w) * dt
-
-
-
-
-
-
-
-
-
 
 
 
