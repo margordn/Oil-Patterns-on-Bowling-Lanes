@@ -1,5 +1,4 @@
 GlowScript 2.7 VPython
-
 #create lane
 lane = box(pos=vec(11.5,0,-(.167/2+.10915)), size=vec(23,1,.167), color=color.orange)
 #initialize ball
@@ -117,7 +116,7 @@ def getOilAndCOF():
 attach_trail(bowlingBall)
 t = 0
 dt = .01
-bowlingBall.vel = vec(17,-.7,0)
+bowlingBall.vel = vec(17,-.3,0)
 vCP = bowlingBall.vel
 bowlingBall.w = vec(50**.5, 50**.5, 0)
 bowlingBall.I = .033
@@ -127,59 +126,58 @@ c_angle = 0 #axis rotation angle
 l = bowlingBall.I * bowlingBall.w
 _radius = vec(0,0,-bowlingBall.radius)
 temp = 0
-FrictionForce = vec(0,0,0) #immediately gets updated
 
-while ((t < 2) and (bowlingBall.pos.x < 23)):
-    rate(500)
-    
+while ((t < 10) and (bowlingBall.pos.x < 23)):
+    rate(100)
+    bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
+
     check_pins()
     oilu = getOilAndCOF()
     if (check_gutter()):
         t = 10 #exits while loop
-
-    #updates of w and angles
-    torque = cross(_radius, bowlingBall.mass * 9.81 * oilu * bowlingBall.w.norm())
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * vCP * mag(vCP)
+    
+    torque = cross(_radius, FrictionalForce)
     l = l + torque * dt
     bowlingBall.w = l /  bowlingBall.I
     b_angle = (bowlingBall.w.y) * dt
     c_angle = (bowlingBall.w.z) * dt
+
     
-    #update of angle between vCM and vCP
     temp = mag(bowlingBall.w * bowlingBall.radius)
+    
     angle = mag(bowlingBall.vel)**2 + 2*temp*mag(bowlingBall.vel)*cos(b_angle)*sin(c_angle) + (temp*cos(b_angle))**2 
     angle = angle**-1
     angle = angle * (temp * cos(b_angle) * cos(c_angle))
     
-    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(vCP) #use vCP because frictional force occurs opposite to motion of what it is INTERACTING with
+    
+    
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * vCP * mag(vCP)#simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
+    tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
+    vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))    
+   
+   #slipping (happens first)
+    if (abs(mag(bowlingBall.vel) - mag(vCP)) < 0.001):
+        print("slipping")
+        bowlingBall.vel = bowlingBall.vel -  FrictionalForce * cos(angle) * dt
         
-    #slipping (happens first)
-    if (abs(mag(bowlingBall.vel) - mag(vCP)) < 0.01):
-        print("slipping- vCM: " + bowlingBall.vel)
-        print("vCP: " + vCP)
-        bowlingBall.vel = bowlingBall.vel - (FrictionalForce / bowlingBall.mass) * dt
-        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
-        
+    
     #rolling (happens last)
-    else if (vCP.x <= 0):
-        print("rolling- vCM: " + bowlingBall.vel)
-        print("vCP: " + vCP)
-        oilu = oilu - .02 #decrease rolling friction from slipping friction
-        bowlingBall.vel= mag(bowlingBall.w*bowlingBall.radius)*norm(bowlingBall.vel) * dt
-        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
+    else if (vCP.x = 0):
+        print("rolling")
+        temp1 = vec(0,0, -.10915) 
+        bowlingBall.w = bowlingBall.w + torque / bowlingBall.I * dt 
+        bowlingBall.vel= bowlingBall.vel + cross(bowlingBall.w, temp1) * dt
+        
     
     #rolling and slipping (happens in between slipping and rolling and is the HOOK)
     else:
-        print("hooking- vCM: " + bowlingBall.vel)
-        print("vCP: " + vCP)
-        oilu = oilu - .01 #decrease hooking friction from slipping friction but not as much as by rolling friction / kinda an average bc it is in between
-        tanVel = bowlingBall.vel / mag(bowlingBall.vel)
-        print("tanVel: " + tanVel)
-        print("factor: " + (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel)))
-        vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))
-        bowlingBall.vel = vCP - mag(bowlingBall.w*bowlingBall.radius)*tanVel 
-        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt 
-
-    
+        print("hooking")
+        temp2 = vec(0, 0, -.10915)
+         
+        bowlingBall.vel = bowlingBall.vel + (vCP - cross(bowlingBall.w, temp2)) * dt  
+        print("tanVel:" + tanVel)
+        print("mag of vCP:" + mag(vCP))
     
     
     
