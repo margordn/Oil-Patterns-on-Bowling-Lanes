@@ -2,7 +2,7 @@ GlowScript 2.7 VPython
 #create lane
 lane = box(pos=vec(11.5,0,-(.167/2+.10915)), size=vec(23,1,.167), color=color.orange)
 #initialize ball
-bowlingBall = sphere(pos=vec(0,0,0), radius=.10915, mass=7.27, color=color.purple, texture=textures.earth) #mass and radius copied from tjhsst study
+bowlingBall = sphere(pos=vec(0,.3,0), radius=.10915, mass=7.27, color=color.purple, texture=textures.earth) #mass and radius copied from tjhsst study
 #initialize gutters 
 gutter1 = box(pos=vec(11.5,.5,-(.167/2+.10915)), size=vec(23,0.23495,0.167), color= color.white) #width found on wiki
 gutter2 = box(pos=vec(11.5,-.5,-(.167/2+.10915)), size=vec(23,0.23495,.167), color= color.white)
@@ -116,10 +116,10 @@ def getOilAndCOF():
 attach_trail(bowlingBall)
 t = 0
 dt = .01
-bowlingBall.vel = vec(17,-.3,0)
+bowlingBall.vel = vec(9,0,0)
 vCP = bowlingBall.vel
-bowlingBall.w = vec(50**.5, 50**.5, 0)
-bowlingBall.I = .033
+bowlingBall.w = vec(-(50**.5), 50**.5, 0)
+bowlingBall.I = .035
 angle = 0   #angle between vCP and vel
 b_angle = 0 #axis tilt angle
 c_angle = 0 #axis rotation angle
@@ -135,7 +135,7 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     oilu = getOilAndCOF()
     if (check_gutter()):
         t = 10 #exits while loop
-    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * vCP * mag(vCP)
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(vCP)
     
     torque = cross(_radius, FrictionalForce)
     l = l + torque * dt
@@ -152,32 +152,25 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     
     
     
-    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * vCP * mag(vCP)#simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
+    #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
     tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
     vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))    
    
    #slipping (happens first)
-    if (abs(mag(bowlingBall.vel) - mag(vCP)) < 0.001):
+    if (t < 1.75):
         print("slipping")
-        bowlingBall.vel = bowlingBall.vel -  FrictionalForce * cos(angle) * dt
+        bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt / bowlingBall.mass 
         
     
     #rolling (happens last)
-    else if (vCP.x = 0):
-        print("rolling")
-        temp1 = vec(0,0, -.10915) 
-        bowlingBall.w = bowlingBall.w + torque / bowlingBall.I * dt 
-        bowlingBall.vel= bowlingBall.vel + cross(bowlingBall.w, temp1) * dt
-        
     
     #rolling and slipping (happens in between slipping and rolling and is the HOOK)
     else:
         print("hooking")
         temp2 = vec(0, 0, -.10915)
-         
+        
         bowlingBall.vel = bowlingBall.vel + (vCP - cross(bowlingBall.w, temp2)) * dt  
-        print("tanVel:" + tanVel)
-        print("mag of vCP:" + mag(vCP))
+        
     
     
     
