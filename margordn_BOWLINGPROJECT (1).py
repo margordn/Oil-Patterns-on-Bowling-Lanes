@@ -1,5 +1,3 @@
-GlowScript 2.7 VPython
-
 #create lane
 lane = box(pos=vec(11.5,0,-(.167/2+.10915)), size=vec(23,1,.167), color=color.orange)
 #initialize ball
@@ -117,7 +115,7 @@ def getOilAndCOF():
 attach_trail(bowlingBall)
 t = 0
 dt = .01
-bowlingBall.vel = vec(17,.3,0)
+bowlingBall.vel = vec(6,0.3,0)
 vCP = bowlingBall.vel
 bowlingBall.w = vec(50**.5, 50**.5, 0)
 bowlingBall.I = .033
@@ -129,7 +127,7 @@ _radius = vec(0,0,-bowlingBall.radius)
 temp = 0
 
 while ((t < 10) and (bowlingBall.pos.x < 23)):
-    rate(100)
+    rate(10)
     bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
 
     check_pins()
@@ -143,6 +141,7 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     bowlingBall.w = l /  bowlingBall.I
     b_angle = (bowlingBall.w.y) * dt
     c_angle = (bowlingBall.w.z) * dt
+
     
     temp = mag(bowlingBall.w * bowlingBall.radius)
     
@@ -152,26 +151,32 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     
     
     
-    
-        
-    #slipping (happens first)
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(vCP) #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
+    tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
+    vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))    
+   
+   #slipping (happens first)
     if (abs(mag(bowlingBall.vel) - mag(vCP)) < 0.001):
         print("slipping")
-        
+        bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt
+        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt
+    
     #rolling (happens last)
     else if (vCP.x <= 0):
         print("rolling")
+        temp1 = vec(0,.10915, 0) 
+        bowlingBall.vel= bowlingBall.vel + cross(bowlingBall.w, temp1) * dt
+        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt 
+        bowlingBall.w = bowlingBall.w + torque / bowlingBall.I * dt 
     
     #rolling and slipping (happens in between slipping and rolling and is the HOOK)
     else:
         print("hooking")
-        tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
+        temp2 = vec(0, .10915, 0)
+        bowlingBall.vel = vCP - cross(bowlingBall.w, temp2)
+        bowlingBall.pos = bowlingBall.pos + bowlingBall.vel * dt 
         print("tanVel:" + tanVel)
         print("mag of vCP:" + mag(vCP))
-        vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))
-
-    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(bowlingBall.vel) #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
-    bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt
     
     
     
