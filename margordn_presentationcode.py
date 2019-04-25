@@ -166,11 +166,14 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
         
     
     #rolling (happens last)
+    else if ((bowlingBall.vel + cross(bowlingBall.w, _radius)) == vec(0,0,0)):
+        print("rolling")
+        bowlingBall.vel = cross(bowlingBall.w, _radius)
     
     #rolling and slipping (happens in between slipping and rolling and is the HOOK)
     else:
         #print("hooking")
-        bowlingBall.vel = bowlingBall.vel + FrictionalForce * dt / bowlingBall.mass
+        bowlingBall.vel = bowlingBall.vel + (FrictionalForce / bowlingBall.mass) * dt
         
     
     
@@ -178,3 +181,4 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     t = t + dt
     
 print("done")
+
