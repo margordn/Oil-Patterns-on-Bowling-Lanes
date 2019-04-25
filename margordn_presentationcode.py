@@ -1,5 +1,4 @@
-from vpython import *
-#GlowScript 2.7 VPython
+GlowScript 2.7 VPython
 
 #create lane
 lane = box(pos=vec(11.5,0,-(.167/2+.10915)), size=vec(23,1,.167), color=color.orange)
@@ -129,13 +128,13 @@ b_angle = 0 #axis tilt angle
 c_angle = 0 #axis rotation angle
 l = bowlingBall.I * bowlingBall.w
 _radius = vec(0,0,-bowlingBall.radius)
-temp = 0
+temp = 0 #initializing to be immediately altered by while loop
 
 while ((t < 10) and (bowlingBall.pos.x < 23)):
     rate(100)
 
     check_pins()
-    oilu = .12 #getOilAndCOF()
+    oilu = getOilAndCOF()
     if (check_gutter()):
         t = 10 #exits while loop
     
@@ -147,9 +146,10 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
     
     #simplified but similar to true Frictional Force as in lower oilu resultis in lower FrictionaForce
     tanVel = vec(norm(bowlingBall.vel).y, norm(bowlingBall.vel).x, norm(bowlingBall.vel).z)
-    vCP = mag(vCP) * (cos(angle)*tanVel - sin(angle)*norm(bowlingBall.vel))    
+    vCP = mag(vCP) * (-cos(angle)*tanVel + sin(angle)*norm(bowlingBall.vel))    
+    print("vCP: " + vCP)
     
-    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * norm(vCP)
+    FrictionalForce = (oilu * bowlingBall.mass * 9.81)  * -vCP / (mag(vCP))
     
     torque = cross(_radius, FrictionalForce)
     l = l + torque * dt
@@ -159,7 +159,7 @@ while ((t < 10) and (bowlingBall.pos.x < 23)):
 
 
    
-   #slipping (happens first)
+    #slipping (happens first)
     if (abs(mag(bowlingBall.vel - vCP)) < .1):
         print("slipping")
         bowlingBall.vel = bowlingBall.vel - FrictionalForce * dt / bowlingBall.mass 
